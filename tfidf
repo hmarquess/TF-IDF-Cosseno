@@ -8,86 +8,86 @@ nltk.download('punkt')
 texto = "A carteira colocou a carteira na carteira"
 
 def main():
-  dataset = tokenizar(texto)
+  sentenca = tokenizar(texto)
 
-  word2count = histograma(dataset)
+  contador = histograma(sentenca)
 
-  freq_words = heapq.nlargest(50,word2count, key=word2count.get)
-  print(f"ordem frequencia : {freq_words}")
+  frequencia = heapq.nlargest(50,contador, key=contador.get)
+  print(f"ordem frequencia : {frequencia}")
 
-  tf_matrix = tf(freq_words, dataset)
+  matriz_tf = tf(frequencia, sentenca)
 
-  words_idf = idf(freq_words, dataset)
+  matriz_idf = idf(frequencia, sentenca)
 
-  tfidfmatrix = tf_idf(tf_matrix, words_idf)
+  tfidfmatriz = tf_idf(matriz_tf, matriz_idf)
 
 
 # Tokenização
 def tokenizar(texto):
-  dataset = nltk.sent_tokenize(texto)
-  for i in range (len(dataset)):
-      dataset[i] = re.sub(r'[^\w\s]', '', dataset[i]) # troca tudo que não for uma palavra para um espaço
-      dataset[i] = dataset[i].replace('\n', ' ').replace('\r', '') # troca tudo que for quebras de linha para um espaço simples
+  sentenca = nltk.sent_tokenize(texto)
+  for i in range (len(sentenca)):
+      sentenca[i] = re.sub(r'[^\w\s]', '', sentenca[i]) # troca tudo que não for uma palavra para um espaço
+      sentenca[i] = sentenca[i].replace('\n', ' ').replace('\r', '') # troca tudo que for quebras de linha para um espaço simples
 
-  print(f"Sentença: {dataset}")
-  return dataset
+  print(f"Sentença: {sentenca}")
+  return sentenca
 
 # Histograma
-def histograma(dataset):
-  word2count = {}
-  for data in dataset:
-      words = nltk.word_tokenize(data)
-      for word in words:
-          if word not in word2count.keys():
-              word2count[word] = 1
+def histograma(sentenca):
+  contador = {}
+  for data in sentenca:
+      palavras = nltk.word_tokenize(data)
+      for palavra in palavras:
+          if palavra not in contador.keys():
+              contador[palavra] = 1
           else:
-              word2count[word] += 1
-  print(f"histograma {word2count}")
-  return word2count
+              contador[palavra] += 1
+  print(f"histograma {contador}")
+  return contador
   
 # TF
-def tf(freq_words, dataset):
-  tf_matrix = {}
+def tf(frequencia, sentenca):
+  tf_matriz = {}
 
-  for word in freq_words:
+  for palavra in frequencia:
       doc_tf = []
-      for data in dataset:
-          frequency = 0
+      for data in sentenca:
+          numeroFrequencia = 0
           for w in nltk.word_tokenize(data):
-              if w == word:
-                  frequency += 1
-          tf_word = frequency/len(nltk.word_tokenize(data))
-          doc_tf.append(tf_word)
-      tf_matrix[word] = doc_tf
+              if w == palavra:
+                  numeroFrequencia += 1
+          tf_palavra = numeroFrequencia/len(nltk.word_tokenize(data))
+          doc_tf.append(tf_palavra)
+      tf_matriz[palavra] = doc_tf
 
-  print(f"TF: {tf_matrix}")
-  return tf_matrix
+  print(f"TF: {tf_matriz}")
+  return tf_matriz
   
 # IDF
-def idf(freq_words, dataset):
-  word_idfs = {}
-  for word in freq_words:
+def idf(frequencia, sentenca):
+  palavras_idfs = {}
+  for palavra in frequencia:
       doc_count = 0 
-      for data in dataset:
-          if word in nltk.word_tokenize(data):
+      for data in sentenca:
+          if palavra in nltk.word_tokenize(data):
               doc_count += 1
-      word_idfs[word] = np.log((len(dataset)/doc_count)+1)
+      palavras_idfs[palavra] = np.log((len(sentenca)/doc_count)+1)
       
-  print(f"IDF: {word_idfs}")
-  return word_idfs
+  print(f"IDF: {palavras_idfs}")
+  return palavras_idfs
 
 # TF-IDF 
-def tf_idf(tf_matrix, word_idfs):
-  tfidf_matrix = []
+def tf_idf(tf_matriz, palavras_idfs):
+  tfidf_matriz = []
 
-  for word in tf_matrix.keys():
+  for palavra in tf_matriz.keys():
       tfidf = []
-      for value in tf_matrix[word]:
-          score = value * word_idfs[word]
+      for value in tf_matriz[palavra]:
+          score = value * palavras_idfs[palavra]
           tfidf.append(score)
-      tfidf_matrix.append(tfidf)
+      tfidf_matriz.append(tfidf)
       
-  print(f"TF-IDF {tfidf_matrix}")
+  print(f"TF-IDF {tfidf_matriz}")
 
 
 main()
