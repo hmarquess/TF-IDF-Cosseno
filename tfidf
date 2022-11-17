@@ -1,0 +1,93 @@
+import numpy as np
+import nltk
+import re
+import heapq
+import numpy as np 
+nltk.download('punkt')
+
+texto = "A carteira colocou a carteira na carteira"
+
+def main():
+  dataset = tokenizar(texto)
+
+  word2count = histograma(dataset)
+
+  freq_words = heapq.nlargest(50,word2count, key=word2count.get)
+  print(f"ordem frequencia : {freq_words}")
+
+  tf_matrix = tf(freq_words, dataset)
+
+  words_idf = idf(freq_words, dataset)
+
+  tfidfmatrix = tf_idf(tf_matrix, words_idf)
+
+
+# Tokenização
+def tokenizar(texto):
+  dataset = nltk.sent_tokenize(texto)
+  for i in range (len(dataset)):
+      dataset[i] = re.sub(r'[^\w\s]', '', dataset[i]) # troca tudo que não for uma palavra para um espaço
+      dataset[i] = dataset[i].replace('\n', ' ').replace('\r', '') # troca tudo que for quebras de linha para um espaço simples
+
+  print(f"Sentença: {dataset}")
+  return dataset
+
+# Histograma
+def histograma(dataset):
+  word2count = {}
+  for data in dataset:
+      words = nltk.word_tokenize(data)
+      for word in words:
+          if word not in word2count.keys():
+              word2count[word] = 1
+          else:
+              word2count[word] += 1
+  print(f"histograma {word2count}")
+  return word2count
+  
+# TF
+def tf(freq_words, dataset):
+  tf_matrix = {}
+
+  for word in freq_words:
+      doc_tf = []
+      for data in dataset:
+          frequency = 0
+          for w in nltk.word_tokenize(data):
+              if w == word:
+                  frequency += 1
+          tf_word = frequency/len(nltk.word_tokenize(data))
+          doc_tf.append(tf_word)
+      tf_matrix[word] = doc_tf
+
+  print(f"TF: {tf_matrix}")
+  return tf_matrix
+  
+# IDF
+def idf(freq_words, dataset):
+  word_idfs = {}
+  for word in freq_words:
+      doc_count = 0 
+      for data in dataset:
+          if word in nltk.word_tokenize(data):
+              doc_count += 1
+      word_idfs[word] = np.log((len(dataset)/doc_count)+1)
+      
+  print(f"IDF: {word_idfs}")
+  return word_idfs
+
+# TF-IDF 
+def tf_idf(tf_matrix, word_idfs):
+  tfidf_matrix = []
+
+  for word in tf_matrix.keys():
+      tfidf = []
+      for value in tf_matrix[word]:
+          score = value * word_idfs[word]
+          tfidf.append(score)
+      tfidf_matrix.append(tfidf)
+      
+  print(f"TF-IDF {tfidf_matrix}")
+
+
+main()
